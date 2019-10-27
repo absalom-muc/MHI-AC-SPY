@@ -14,6 +14,7 @@ Clock timing: CPHA=1 => data is captures with the rising clock edge, data change
 ## Timing
 A byte consists of 8 bits. SCK has a frequency of 32kHz. One bit takes 31.25µs, so one byte takes 8x31.25µs=250µs. There is a pause of 250µs between two bytes.
 A frame consists of 20 bytes. A frame consumes 20x2x250µs=10ms. Between 2 frames is a pause of 40ms. So 20 frames per second will be transmitted.
+The following oscilloscope screenshot shows 3 bytes:
 
 # SPI Frame
 A frame starts with three signature bytes, followed by 15 data bytes and 2 bytes for a checksum. The following table shows the content of a frame.
@@ -42,6 +43,29 @@ Bit 4	| Bit 3 |	Bit 2 | Mode
 0 |	1 |	1 |	Fan
 1 |	0 |	0 |	Heat
 
+### Fan
+The fan level is coded in data byte 1 bit [1:0] and in data byte 6 (bit 6).
+
+db1 | db1 | db6 | Function
+----| --- | --- | ---	
+Bit 1 | Bit 0 | Bit 6 |	FAN
+0 |	0 |	0 |	1
+0 |	1 |	0 |	2
+1 |	0 |	0 |	3
+x |	x |	1 |	4
+
+### Room temperature
+The room temperature is coded in data byte 3, bit [7:0] according to the  formula T[°C]=(db3[7:0]-61)/4
+
+### Temperature setpoint
+The temperature setpoint is coded in data byte 2, bit [6:1] according to the formula T[°C]=db2[6:1]>>2
+
+## Checksum
+The checksum is calculated by the sum of the signature bytes plus the databytes. The low byte of the checksum is stored at byte position 18 and the low byte of the checksum is stored at byte position 19. Maximum value of the checksum is 0x0fe1. Therefore bit [7:4] of the checksum high byte is always 0.
+
+
+
+ 
 
 
 
