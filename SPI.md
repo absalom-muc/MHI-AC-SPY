@@ -1,0 +1,49 @@
+# SPI Bus
+## Interface
+The AC is the SPI master and the ESP8266 is the SPI slave. MHI uses signals: SCK, MOSI, MISO.  A slave select signal is not supported.
+
+Name | Function |input/output
+------------ | ------------- |--------------
+SCK | serial clock | Clock output for AC, input for ESP8266
+MOSI | Master Out, Slave In | Data output for MHI, input for ESP8266
+MISO | Master In, Slave Out | Input for MHI, output for ESP8266
+
+## Protocol
+Clock polarity: CPOL=1 => clock idles at 1, and each cycle consists of a pulse of 0
+Clock timing: CPHA=1 => data is captures with the rising clock edge, data changes with the falling edge
+## Timing
+A byte consists of 8 bits. SCK has a frequency of 32kHz. One bit takes 31.25µs, so one byte takes 8x31.25µs=250µs. There is a pause of 250µs between two bytes.
+A frame consists of 20 bytes. A frame consumes 20x2x250µs=10ms. Between 2 frames is a pause of 40ms. So 20 frames per second will be transmitted.
+
+# SPI Frame
+A frame starts with three signature bytes, followed by 15 data bytes and 2 bytes for a checksum. The following table shows the content of a frame.
+## Signature
+The signature bytes indicate the start of a frame with the 3 bytes 0x6d, 0x80, 0x08.
+## Data
+The following clauses describe the decoding for power, mode, fan status, temperature setpoint and the room temperature
+### Power
+Power status is coded in data byte 0 (bit 0).
+
+db0	| Function
+---- | -----
+Bit 0| Power
+0 | off
+1 | on
+
+### Mode
+The mode is coded in data byte 0 (bit 4 ... 2).
+
+db0 | db0 | db0 | Function
+----| --- | --- | ---
+Bit 4	| Bit 3 |	Bit 2 | Mode
+0 |	0 |	0 |	Auto
+0 |	0 |	1 |	Dry
+0 |	1 |	0 |	Cool
+0 |	1 |	1 |	Fan
+1 |	0 |	0 |	Heat
+
+
+
+
+
+
