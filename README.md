@@ -1,9 +1,9 @@
 # MHI-SPY
-The program for reads data (e.g. room temperature, fan status etc.) from
-a Mitsubishi Heavy Industries (MHI) air conditioner (AC) and send the data via MQTT.
-The data are read via SPI from the AC. The AC is the SPI master and the ESP8266 is the SPI slave.
+The program reads data (e.g. room temperature, fan status etc.) from a Mitsubishi Heavy Industries (MHI)
+air conditioner (AC) via SPI and sends the data via MQTT. The AC is the SPI master and the ESP8266 is the SPI slave.
 So far only reading from the AC is supported. (but writing is planned for the future)
 The program has a draft status and your input is welcome.
+My target is to read and write data with an ESP8266.
 
 # Attention:
 You have to open the indoor unit to have access to the SPI. Opening of the indoor unit should be done by 
