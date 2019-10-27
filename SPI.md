@@ -13,9 +13,10 @@ Clock polarity: CPOL=1 => clock idles at 1, and each cycle consists of a pulse o
 Clock timing: CPHA=1 => data is captures with the rising clock edge, data changes with the falling edge
 ## Timing
 A byte consists of 8 bits. SCK has a frequency of 32kHz. One bit takes 31.25µs, so one byte takes 8x31.25µs=250µs. There is a pause of 250µs between two bytes.
-A frame consists of 20 bytes. A frame consumes 20x2x250µs=10ms. Between 2 frames is a pause of 40ms. So 20 frames per second will be transmitted.
-The following oscilloscope screenshot shows 3 bytes:
+A frame consists of 20 bytes. A frame consumes 20x2x250µs=10ms. Between 2 frames is a pause of 40ms. So 20 frames per second will be transmitted. The following oscilloscope screenshot shows 3 bytes:
+![SPI timing](/images/ScreenImg-11-cut.png)
 
+Yellow: SCK; Purple: MOSI
 # SPI Frame
 A frame starts with three signature bytes, followed by 15 data bytes and 2 bytes for a checksum. The following table shows the content of a frame.
 ## Signature
@@ -45,14 +46,47 @@ Bit 4	| Bit 3 |	Bit 2 | Mode
 
 ### Fan
 The fan level is coded in data byte 1 bit [1:0] and in data byte 6 (bit 6).
-
-db1 | db1 | db6 | Function
-----| --- | --- | ---	
-Bit 1 | Bit 0 | Bit 6 |	FAN
-0 |	0 |	0 |	1
-0 |	1 |	0 |	2
-1 |	0 |	0 |	3
-x |	x |	1 |	4
+<table style="width: 273px; height: 68px;">
+<thead>
+<tr>
+<td style="width: 66.9667px;" colspan="2"><strong>data byte 1</strong></td>
+<td style="width: 66.9667px;"><strong>data byte 6</strong></td>
+<td style="width: 66.9667px;"><strong>Function</strong></td>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="width: 66.9667px;">bit 1</td>
+<td style="width: 71.4333px;">bit 0</td>
+<td style="width: 66.9667px;">bit 6</td>
+<td style="width: 66.9667px;">Fan</td>
+</tr>
+<tr>
+<td style="width: 66.9667px;">0</td>
+<td style="width: 71.4333px;">0</td>
+<td style="width: 66.9667px;">0</td>
+<td style="width: 66.9667px;">1</td>
+</tr>
+<tr>
+<td style="width: 66.9667px;">0</td>
+<td style="width: 71.4333px;">1</td>
+<td style="width: 66.9667px;">0</td>
+<td style="width: 66.9667px;">2</td>
+</tr>
+<tr>
+<td style="width: 66.9667px;">1</td>
+<td style="width: 71.4333px;">0</td>
+<td style="width: 66.9667px;">0</td>
+<td style="width: 66.9667px;">3</td>
+</tr>
+<tr>
+<td style="width: 66.9667px;">x</td>
+<td style="width: 71.4333px;">x</td>
+<td style="width: 66.9667px;">1</td>
+<td style="width: 66.9667px;">4</td>
+</tr>
+</tbody>
+</table>
 
 ### Room temperature
 The room temperature is coded in data byte 3, bit [7:0] according to the  formula T[°C]=(db3[7:0]-61)/4
