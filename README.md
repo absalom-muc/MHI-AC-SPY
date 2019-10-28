@@ -19,7 +19,7 @@ I assume that all indoor units of the type SRC xx ZS-S are supported. I use the 
 ## Hardware:
 The ESP8266 is powered from the AC via DC-DC (12V -> 5V) converter
 The ESP8266 SPI signals SCL (SPI clock) and MOSI (Master Out Slave In) signals are connected via a voltage divider with the AC.
-More details will be provided ...
+More details are described [here](/hardware.md)
 
 ## Software:
 The program uses the [MQTT client library](https://github.com/knolleary/pubsubclient) from Nick O'Leary (knolleary). Thank you Nick - great work!
