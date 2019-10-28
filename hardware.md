@@ -9,10 +9,10 @@ The AC provides the signals via the CNS connector. It has 5 pins with a pitch of
 **Opening of the indoor unit should be done by a qualified professional because faulty handling may cause leakage of water, electric shock or fire!**
 
 ## Power Supply
-The connector provides +12V. A DC-DC converter [TSR 1-2450](https://www.tracopower.com/products/browse-by-category/find/tsr-1/3/) is used to convert it to +5V.
+The connector provides +12V. The DC-DC converter [TSR 1-2450](https://www.tracopower.com/products/browse-by-category/find/tsr-1/3/) is used to convert it to +5V.
 
 ## MHI-SPI Testboard
-The [Eagle](https://www.autodesk.com/products/eagle/overview) files for the testboard are located in the sub-folder eagle. On the PCB are located many jumper and test pins to enable simple connections to measuring devices.
+The [Eagle](https://www.autodesk.com/products/eagle/overview) files (schematic & PCB) for the testboard are located in the sub-folder [eagle](/eagle). On the PCB are located many jumper and test pins to enable simple connections to measuring devices.
 
 The following photo shows the assembled testboard.
 ![Testboard](/images/testboard.jpg)
