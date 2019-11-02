@@ -68,9 +68,9 @@ The mode is coded in data byte 0 (bit 4 ... 2).
 </tr>
 <tr>
 <td style="width: 66.9667px;">0</td>
-<td style="width: 71.4333px;">0</td>
+<td style="width: 71.4333px;">1</td>
 <td style="width: 66.9667px;">1</td>
-<td style="width: 66.9667px;">FAN</td>
+<td style="width: 66.9667px;">Fan</td>
 </tr>
 <td style="width: 66.9667px;">1</td>
 <td style="width: 71.4333px;">0</td>
@@ -79,6 +79,7 @@ The mode is coded in data byte 0 (bit 4 ... 2).
 </tr>
 </tbody>
 </table>
+
 ### Fan
 The fan level is coded in data byte 1 bit [1:0] and in data byte 6 (bit 6).
 <table style="width: 273px; height: 68px;">
