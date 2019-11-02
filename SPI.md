@@ -26,7 +26,7 @@ The following clauses describe the decoding for power, mode, fan status, tempera
 ### Power
 Power status is coded in data byte 0 (bit 0).
 
-db0	| Function
+data byte 0	| Function
 ---- | -----
 Bit 0| Power
 0 | off
@@ -34,16 +34,51 @@ Bit 0| Power
 
 ### Mode
 The mode is coded in data byte 0 (bit 4 ... 2).
-
-db0 | db0 | db0 | Function
-----| --- | --- | ---
-Bit 4	| Bit 3 |	Bit 2 | Mode
-0 |	0 |	0 |	Auto
-0 |	0 |	1 |	Dry
-0 |	1 |	0 |	Cool
-0 |	1 |	1 |	Fan
-1 |	0 |	0 |	Heat
-
+<table style="width: 273px; height: 68px;">
+<thead>
+<tr>
+<td style="width: 66.9667px;" colspan="3"><strong>data byte 0</strong></td>
+<td style="width: 66.9667px;"><strong>Function</strong></td>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="width: 66.9667px;">bit 4</td>
+<td style="width: 71.4333px;">bit 3</td>
+<td style="width: 66.9667px;">bit 2</td>
+<td style="width: 66.9667px;">Mode</td>
+</tr>
+<tr>
+<td style="width: 66.9667px;">0</td>
+<td style="width: 71.4333px;">0</td>
+<td style="width: 66.9667px;">0</td>
+<td style="width: 66.9667px;">Auto</td>
+</tr>
+<tr>
+<td style="width: 66.9667px;">0</td>
+<td style="width: 71.4333px;">0</td>
+<td style="width: 66.9667px;">1</td>
+<td style="width: 66.9667px;">Dry</td>
+</tr>
+<tr>
+<td style="width: 66.9667px;">0</td>
+<td style="width: 71.4333px;">1</td>
+<td style="width: 66.9667px;">0</td>
+<td style="width: 66.9667px;">Cool</td>
+</tr>
+<tr>
+<td style="width: 66.9667px;">0</td>
+<td style="width: 71.4333px;">0</td>
+<td style="width: 66.9667px;">1</td>
+<td style="width: 66.9667px;">FAN</td>
+</tr>
+<td style="width: 66.9667px;">1</td>
+<td style="width: 71.4333px;">0</td>
+<td style="width: 66.9667px;">0</td>
+<td style="width: 66.9667px;">Heat</td>
+</tr>
+</tbody>
+</table>
 ### Fan
 The fan level is coded in data byte 1 bit [1:0] and in data byte 6 (bit 6).
 <table style="width: 273px; height: 68px;">
