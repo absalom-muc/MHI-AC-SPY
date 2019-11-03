@@ -1,33 +1,25 @@
-// MHI-SPI
+// MHI-AC-SPI v1.1 by absalom-muc
 // read data via SPI and send via MQTT
 
-
 #include "esp8266_peri.h"
-//#include "ets_sys.h"
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h> // see https://github.com/knolleary/pubsubclient
 
-const char* ssid = "xxx";
-const char* password = "xxx";
+const char* ssid = "fb1";
+const char* password = "vchuweUth7233@in";
 
 WiFiClient espClient;
 PubSubClient MQTTclient(espClient);
 
-const int SYNC_STATUS=4; // Pin indicating the sync status
-volatile int frame_sync = 0;
-      // 0: not synchronized and armed
-      // 1: synchronized, armed
-      // 2: synchronized, valid frame received, but unchanged
-      // 3: synchronized, new frame received
-volatile int frame_sync_changed = 0;
+#define SYNC_PIN 4
+volatile bool valid_datapacket_received = false;
+volatile bool new_datapacket_received = false;
+unsigned long last_sync_isrT = 0;
+volatile bool sync = false;
+volatile bool sync_changed = true;
 
-uint frame_cnt=0;
-
-unsigned long previousMillis = 0;
-unsigned long asyncMillis = 0;
 unsigned long runtimeMillis = 0;
-const int length = 20;        // length of packet, so 19 should be enough
-uint8_t rx_SPIframe[length];
+uint8_t rx_payload[19];
 
 #define SIGNBYTE1 0
 #define SIGNBYTE2 1
@@ -38,15 +30,13 @@ uint8_t rx_SPIframe[length];
 #define DATABYTE6 SIGNBYTE2 + 7
 
 void MQTTreconnect() {
-  // Loop until we're reconnected
-  while (!MQTTclient.connected()) {
+  while (!MQTTclient.connected()) { // Loop until we're reconnected
     SPI1S |= SPISSRES;   //reset SPI
-    update_frame_sync(0);
+    update_sync(0);
     Serial.print("Attempting MQTT connection...");
-    if (MQTTclient.connect ("ESP8266Client-MHI-SPI", "MHI/connected", 0, true, "0")) {
+    if (MQTTclient.connect ("MHI-AC-SPI", "MHI/connected", 0, true, "0")) {
       Serial.println("connected");
       MQTTclient.publish("MHI/connected", "1", true);
-      MQTTclient.publish("MHI/synced", "0", true);  // notwendig???
     } else {
       Serial.print("failed, rc=");
       Serial.print(MQTTclient.state());
@@ -73,43 +63,45 @@ void ICACHE_RAM_ATTR _hspi_slave_isr_handler(void *) {
         SPI1S |= (0x3E0);             //enable interrupts
 
         if(status & SPISWBIS) {       // was it a SPI_SLV_WR_BUF_INT
-          uint8_t *p = rx_SPIframe;
-          int j=0;
+          uint8_t *p = rx_payload;
           uint32_t dword;
-          int diff=0;
+          new_datapacket_received = 0;
           uint16_t sum = 0x6c;
           for(int i=0; i<19;i++) {
             if (i%4 == 0)
-              dword = SPI1W(j++);
+              dword = SPI1W(i/4);
             if(*p != (uint8_t)dword)
-              diff=1;
-            *p = dword;
+              new_datapacket_received = 1;
+            *p = (uint8_t)dword;
             if(i<17)
               sum += *p;
             p++;
             dword = dword>>8;
           }
-          if(rx_SPIframe[0] != 0x80 | rx_SPIframe[1] != 0x04)
-            update_frame_sync(0);
-          else if(rx_SPIframe[17] != highByte(sum) | rx_SPIframe[18] != lowByte(sum))
-            update_frame_sync(0);
-          else if(diff == 0)
-            update_frame_sync(2);
+          if((rx_payload[0] != 0x80 | rx_payload[1] != 0x04) | (rx_payload[17] != highByte(sum) | rx_payload[18] != lowByte(sum)))
+            digitalWrite(SYNC_PIN, 0);  // for debug only
           else
-            update_frame_sync(3);
-          digitalWrite(LED_BUILTIN, LOW);
+            valid_datapacket_received = true;
+          digitalWrite(LED_BUILTIN, LOW);  // for debug only
         }
     } else if(istatus & (1 << SPII0)) { //SPI0 ISR
         SPI0S &= ~(0x3ff);//clear SPI ISR
     } else if(istatus & (1 << SPII2)) {} //I2S ISR
 }
 
+void update_sync(bool sync_new) {
+  if(sync_new != sync) {
+    sync = sync_new;
+    sync_changed = true;
+    digitalWrite(SYNC_PIN, sync_new);
+  }
+}
+
 void hspi_slave_begin() {
     pinMode(SCK, SPECIAL);                  // Both inputs in slave mode
     pinMode(MOSI, SPECIAL);
-    // Take care, the register descriptions might be wrong!
-    // Couldn't find a ESP8266 SPI register description
-    SPI1C = 0x0628A000;                     // SPI_CTRL_REG LSB first, single bit rx_SPIframe mode.
+    // Take care, the register descriptions might be wrong! Couldn't find a ESP8266 SPI register description
+    SPI1C = 0x0628A000;                     // SPI_CTRL_REG LSB first, single bit rx_payload mode.
                                             // bit 26 = 1 SPI_WR_BIT_ORDER =>  sends LSB first
                                             // bit 25 = 1 SPI_RD_BIT_ORDER =>  sends LSB first
                                             // bit 24 = 0 SPI_FREAD_QIO  =>  no
@@ -132,7 +124,6 @@ void hspi_slave_begin() {
     SPI1S1 = (19 * 8 - 1) << SPIS1LBUF;     // SPI_SLAVE1_REG, SPI_SLV_BUF_BITLEN - doesn't really match SPI_SLAVE1_REG description
     SPI1S3 = 0xF1F26CF3;                    // SPI_SLAVE3_REG, SPI_SLV_RDSTA_CMD_VALUE  = 0x6c
     SPI1P = 0x20080000;                     // SPI_PIN_REG, Clock idle high, seems to cause contension on the clock pin if set to idle low.
-    frame_sync=0;
     ETS_SPI_INTR_ATTACH(_hspi_slave_isr_handler, 0);
     ETS_SPI_INTR_ENABLE();
 }
@@ -140,13 +131,13 @@ void hspi_slave_begin() {
 void setup() {
   Serial.begin(115200);
   Serial.println();
-  Serial.printf("%lu:Klima SPI Sniffer starting\n", millis());
-  pinMode(LED_BUILTIN, OUTPUT);  // used to indicate that a frame was received, active low
+  Serial.printf("%lu:MHI-AC_SPI starting\n", millis());
+  pinMode(LED_BUILTIN, OUTPUT);  // indicates that a frame was received, active low
   digitalWrite(LED_BUILTIN, HIGH);
-  pinMode(SYNC_STATUS, OUTPUT);
-  digitalWrite(SYNC_STATUS, LOW);
+  pinMode(SYNC_PIN, OUTPUT);
+  digitalWrite(SYNC_PIN, LOW);
 
-  //WiFi.disconnect();
+  WiFi.hostname("MHI-AC-SPI");
   WiFi.begin(ssid, password);
   Serial.println("");
   while (WiFi.status() != WL_CONNECTED) {
@@ -154,128 +145,107 @@ void setup() {
     Serial.print(".");
   }
   Serial.printf(" connected to %s, IP address: %s\n", ssid, WiFi.localIP().toString().c_str());
-  
   hspi_slave_begin();
   MQTTclient.setServer("ds218p", 1883);
   MQTTreconnect();
-  //MQTTclient.setCallback(callback);
-}
-
-void update_frame_sync(int new_value) {
-  if((frame_sync != new_value) & (frame_sync == 0 | new_value == 0)){
-    Serial.printf("%lu:sync %i -> %i\n", millis(), frame_sync, new_value);
-    frame_sync_changed = 1;
-    if(new_value > 0)
-      digitalWrite(SYNC_STATUS, HIGH); // synced
-    else
-      digitalWrite(SYNC_STATUS, LOW);  // not synced
-  }
-  frame_sync = new_value;
 }
 
 void loop() {
   uint fan_old = 99;
   uint power_old = 99;
   uint mode_old = 99;
-  uint troom_old = 99;
+  uint databyte3_old = 99;
+  int troom_old = 99;
   uint tsetpoint_old = 99;
-  char databyte3_old = 0xff;  // temporary use for evaluation room temperature
   char strtmp[10]; // for the MQTT strings to send
   
-  Serial.println("start loop");
-  previousMillis = millis();
   sync_isr();  
   while(1){
-    if(frame_sync >= 2) {  // valid frame received
-        frame_cnt++;
-        digitalWrite(LED_BUILTIN, HIGH);
-        if(frame_sync == 3) {  // new frame received
-          MQTTclient.publish("MHI/raw", rx_SPIframe, 19, true);
+    if(valid_datapacket_received) {  // valid frame received
+      valid_datapacket_received = false;
+      last_sync_isrT = millis();
+      sync_isr();        
+      update_sync(true);
+      digitalWrite(LED_BUILTIN, HIGH);
+      if(new_datapacket_received) {  // new frame received
+        new_datapacket_received = false;
+        MQTTclient.publish("MHI/raw", rx_payload, 19, true);
 
-          if((rx_SPIframe[DATABYTE0] & 0x01) != power_old) {  // Power
-            power_old = rx_SPIframe[DATABYTE0] & 0x01;
-            if(power_old == 0)
-              MQTTclient.publish("MHI/Power", "off", true);
-            else
-              MQTTclient.publish("MHI/Power", "on", true);
-          }
-         
-          if(rx_SPIframe[DATABYTE0] & 0x1c != mode_old) {  // Mode
-            mode_old = rx_SPIframe[DATABYTE0] & 0x1c;
-            switch (mode_old) {
-              case 0x00:
-                  MQTTclient.publish("MHI/Mode", "Auto", true);
-                  break;
-              case 0x04:
-                  MQTTclient.publish("MHI/Mode", "Dry", true);
-                  break;
-              case 0x08:
-                  MQTTclient.publish("MHI/Mode", "Cool", true);
-                  break;
-              case 0x0c:
-                  MQTTclient.publish("MHI/Mode", "Fan", true);
-                  break;
-              case 0x10:
-                  MQTTclient.publish("MHI/Mode", "Heat", true);
-                  break;
-              default:
-                  MQTTclient.publish("MHI/Mode", "invalid", true);
-                  break;
-            }
-          }
-
-          uint fantmp;
-          if((rx_SPIframe[DATABYTE6] & 0x40) > 0) // Fan status
-            fantmp = 4;
+        if((rx_payload[DATABYTE0] & 0x01) != power_old) {  // Power
+          power_old = rx_payload[DATABYTE0] & 0x01;
+          if(power_old == 0)
+            MQTTclient.publish("MHI/Power", "off", true);
           else
-            fantmp = (rx_SPIframe[DATABYTE1] & 0x03) + 1;
-          if(fantmp != fan_old){
-            fan_old = fantmp;
-            itoa(fan_old, strtmp, 10);
-            MQTTclient.publish("MHI/fan", strtmp, true);
+            MQTTclient.publish("MHI/Power", "on", true);
+        }
+       
+        if((rx_payload[DATABYTE0] & 0x1c) != mode_old) {  // Mode
+          mode_old = rx_payload[DATABYTE0] & 0x1c;
+          switch (mode_old) {
+            case 0x00:
+                MQTTclient.publish("MHI/Mode", "Auto", true);
+                break;
+            case 0x04:
+                MQTTclient.publish("MHI/Mode", "Dry", true);
+                break;
+            case 0x08:
+                MQTTclient.publish("MHI/Mode", "Cool", true);
+                break;
+            case 0x0c:
+                MQTTclient.publish("MHI/Mode", "Fan", true);
+                break;
+            case 0x10:
+                MQTTclient.publish("MHI/Mode", "Heat", true);
+                break;
+            default:
+                MQTTclient.publish("MHI/Mode", "invalid", true);
+                break;
           }
+        }
 
-          if((rx_SPIframe[DATABYTE3] - 61) / 4 != troom_old) {  // Room temperature
-            troom_old = (rx_SPIframe[DATABYTE3] - 61) >> 2;
-            itoa(troom_old, strtmp, 10);
+        uint fantmp;
+        if((rx_payload[DATABYTE6] & 0x40) > 0) // Fan status
+          fantmp = 4;
+        else
+          fantmp = (rx_payload[DATABYTE1] & 0x03) + 1;
+        if(fantmp != fan_old){
+          fan_old = fantmp;
+          itoa(fan_old, strtmp, 10);
+          MQTTclient.publish("MHI/fan", strtmp, true);
+        }
+          
+        if(abs(rx_payload[DATABYTE3] - databyte3_old) > 1) {  // Room temperature delta > 0.25°C
+          int troom = (rx_payload[DATABYTE3] - 61) / 4;
+          if((rx_payload[DATABYTE3] - 61) % 4 >= 2)
+            troom += 1;
+          databyte3_old = rx_payload[DATABYTE3];
+          if(troom != troom_old) {
+            itoa(troom, strtmp, 10);
             MQTTclient.publish("MHI/Troom", strtmp, true);
+            troom_old = troom;
           }
+        }
 
-          if(rx_SPIframe[DATABYTE3] != databyte3_old) { // temporary use for room temperature evaluation
-            String tmp = String(rx_SPIframe[DATABYTE3], HEX);
-            MQTTclient.publish("MHI/TroomHex", tmp.c_str(), true);
-            databyte3_old = rx_SPIframe[DATABYTE3];
-          }
-            
-          if((rx_SPIframe[DATABYTE2] & 0x7f) >> 1 != tsetpoint_old) {  // Temperature setpoint
-            tsetpoint_old = (rx_SPIframe[DATABYTE2] & 0x7f) >> 1;
-            itoa(tsetpoint_old, strtmp, 10);
-            MQTTclient.publish("MHI/Tsetpoint", strtmp, true);
-          }
+        if((rx_payload[DATABYTE2] & 0x7f) >> 1 != tsetpoint_old) {  // Temperature setpoint
+          tsetpoint_old = (rx_payload[DATABYTE2] & 0x7f) >> 1;
+          itoa(tsetpoint_old, strtmp, 10);
+          MQTTclient.publish("MHI/Tsetpoint", strtmp, true);
         }
-        update_frame_sync(1);           //synced, armed
-        previousMillis = millis();
-        sync_isr();        
-      }
-    else { // armed, frame_sync <= 1
-      if (millis() - previousMillis > 53) {  // latest after 50ms a valid frame ws expected
-        if(frame_sync == 1) {
-          asyncMillis = millis();
-          update_frame_sync(0);           //not synced, armed
-        }
-        else if (millis() - asyncMillis > 10000) {  // 10 seconds after async state -> reset
-          ESP.restart();
-        }
-        previousMillis = millis();
-        sync_isr();
       }
     }
-    if(frame_sync_changed == 1) {
-      if(frame_sync > 0)
+
+    if(millis() - last_sync_isrT > 53) {
+      last_sync_isrT = millis();
+      sync_isr();        
+      update_sync(false);
+    }
+    
+    if(sync_changed) {
+      if(sync)
         MQTTclient.publish ("MHI/synced", "1", true);
       else
         MQTTclient.publish ("MHI/synced", "0", true);
-      frame_sync_changed = 0;
+      sync_changed = 0;
     }
 
     if (millis() - runtimeMillis > 1000) {
