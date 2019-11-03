@@ -5,8 +5,8 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h> // see https://github.com/knolleary/pubsubclient
 
-const char* ssid = "fb1";
-const char* password = "vchuweUth7233@in";
+const char* ssid = "xxx";
+const char* password = "xxx";
 
 WiFiClient espClient;
 PubSubClient MQTTclient(espClient);
