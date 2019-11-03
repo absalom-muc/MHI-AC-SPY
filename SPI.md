@@ -20,7 +20,7 @@ Yellow: SCK; Purple: MOSI
 # SPI Frame
 A frame starts with three signature bytes, followed by 15 data bytes and 2 bytes for a checksum. The following table shows the content of a frame.
 ## Signature
-The signature bytes indicate the start of a frame with the 3 bytes 0x6d, 0x80, 0x08.
+The signature bytes indicate the start of a frame with the 3 bytes 0x6c, 0x80, 0x04.
 ## Data
 The following clauses describe the decoding for power, mode, fan status, temperature setpoint and the room temperature
 ### Power
