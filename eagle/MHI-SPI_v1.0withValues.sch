@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="9.4.2">
+<eagle version="9.5.1">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
+<grid distance="0.05" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="no" active="no"/>
 <layer number="16" name="Bottom" color="1" fill="1" visible="no" active="no"/>
@@ -18025,10 +18025,10 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 <part name="GND4" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
 <part name="P+3" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="+12V" device=""/>
 <part name="P+4" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="+12V" device=""/>
-<part name="R1" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="R-EU_" device="VMTA55" package3d_urn="urn:adsk.eagle:package:26121/2"/>
-<part name="R2" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="R-EU_" device="VMTA55" package3d_urn="urn:adsk.eagle:package:26121/2"/>
-<part name="R3" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="R-EU_" device="VMTA55" package3d_urn="urn:adsk.eagle:package:26121/2"/>
-<part name="R4" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="R-EU_" device="VMTA55" package3d_urn="urn:adsk.eagle:package:26121/2"/>
+<part name="R1" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="R-EU_" device="VMTA55" package3d_urn="urn:adsk.eagle:package:26121/2" value="1k"/>
+<part name="R2" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="R-EU_" device="VMTA55" package3d_urn="urn:adsk.eagle:package:26121/2" value="3k3"/>
+<part name="R3" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="R-EU_" device="VMTA55" package3d_urn="urn:adsk.eagle:package:26121/2" value="1k"/>
+<part name="R4" library="rcl" library_urn="urn:adsk.eagle:library:334" deviceset="R-EU_" device="VMTA55" package3d_urn="urn:adsk.eagle:package:26121/2" value="3k3"/>
 <part name="GND5" library="supply1" library_urn="urn:adsk.eagle:library:371" deviceset="GND" device=""/>
 <part name="JP1" library="jumper" library_urn="urn:adsk.eagle:library:252" deviceset="JP1E" device="" package3d_urn="urn:adsk.eagle:package:15455/1"/>
 <part name="JP2" library="jumper" library_urn="urn:adsk.eagle:library:252" deviceset="JP1E" device="" package3d_urn="urn:adsk.eagle:package:15455/1"/>
@@ -18117,19 +18117,19 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 </instance>
 <instance part="R1" gate="G$1" x="10.16" y="60.96" smashed="yes" rot="R270">
 <attribute name="NAME" x="6.5786" y="62.23" size="1.778" layer="95" rot="R270"/>
-<attribute name="VALUE" x="6.858" y="64.77" size="1.778" layer="96" rot="R270"/>
+<attribute name="VALUE" x="11.938" y="62.23" size="1.778" layer="96" rot="R270"/>
 </instance>
 <instance part="R2" gate="G$1" x="7.62" y="48.26" smashed="yes" rot="R270">
 <attribute name="NAME" x="4.0386" y="49.53" size="1.778" layer="95" rot="R270"/>
-<attribute name="VALUE" x="4.318" y="52.07" size="1.778" layer="96" rot="R270"/>
+<attribute name="VALUE" x="10.668" y="49.53" size="1.778" layer="96" rot="R270"/>
 </instance>
 <instance part="R3" gate="G$1" x="2.54" y="60.96" smashed="yes" rot="R270">
 <attribute name="NAME" x="-1.0414" y="62.23" size="1.778" layer="95" rot="R270"/>
-<attribute name="VALUE" x="-0.762" y="64.77" size="1.778" layer="96" rot="R270"/>
+<attribute name="VALUE" x="4.318" y="62.23" size="1.778" layer="96" rot="R270"/>
 </instance>
 <instance part="R4" gate="G$1" x="-2.54" y="48.26" smashed="yes" rot="R90">
 <attribute name="NAME" x="-4.0386" y="46.99" size="1.778" layer="95" rot="R90"/>
-<attribute name="VALUE" x="0.762" y="44.45" size="1.778" layer="96" rot="R90"/>
+<attribute name="VALUE" x="0.762" y="45.72" size="1.778" layer="96" rot="R90"/>
 </instance>
 <instance part="GND5" gate="1" x="-2.54" y="40.64" smashed="yes">
 <attribute name="VALUE" x="-5.08" y="38.1" size="1.778" layer="96"/>
