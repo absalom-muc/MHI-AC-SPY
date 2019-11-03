@@ -18,3 +18,11 @@ The following photo shows the assembled testboard.
 ![Testboard](/images/testboard.jpg)
 The upper colored cables are connected to an AC remote control. The JST connector is connected to the MHI AC.
 
+## Signal Connection
+SCK is connected via a voltage divider with D5 (GPIO14) and MOSI is connected via a voltage divider with D7 (GPIO13) of ESP8266. 
+## Signal Level
+MHI provides SCK and MOSI with <span style="">V<sub>low</sub> = 0V and V<sub>high</sub> = 4V</span>
+The voltage divider limits the high voltage to 3.2V.
+
+
+
