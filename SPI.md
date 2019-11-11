@@ -21,8 +21,10 @@ Yellow: SCK; Purple: MOSI
 A frame starts with three signature bytes, followed by 15 data bytes and 2 bytes for a checksum. The following table shows the content of a frame.
 ## Signature
 The MOSI signature bytes indicate the start of a frame with the 3 bytes 0x6c, 0x80, 0x04.
+For MISO seems to be more than one signature, usually it is 0xa9, 0x00, 0x07.
+
 ## Data
-The following clauses describe the decoding for power, mode, fan status, temperature setpoint and the room temperature
+The following clauses describe the MOSI decoding for power, mode, fan, vanes, temperature setpoint and the room temperature
 ### Power
 Power status is coded in MOSI data byte 0 (bit 0).
 
@@ -188,12 +190,12 @@ The checksum is calculated by the sum of the signature bytes plus the databytes.
 
 ## Variants
 **The following chapter is in draft status!**
-Different variants are possible when a remote control is connected via SPI. The MISO frame (data from RC to MHI-AC) requests data. The type of the data is identified via MISO-db12. MHI-AC answers with the same value in MOSI-db9 (but only when bit2 of MISO-db17 is set).
+Different variants are possible when a remote control is connected via SPI. The MISO frame (data from RC to MHI-AC) requests data. The variant of the data is identified via MISO-db9. MHI-AC answers with the same value in MOSI-db9 (but only when bit2 of MISO-db14 is set).
 
 The following screenshot shows some SPI traffic:
 ![MISO MOSI traffic](/images/MISO-MOSI_1.JPG)
 
-In the marked row MISO-db12=0x80 and bit2 of MISO-db17 is set, so variant 0 is selected. MOSI-db9=0x80 and MOSI-db11 represents the outdoor temperature
+In the marked row MISO-db9=0x80 and bit2 of MISO-db14 is set, so variant 0 is selected. MOSI-db9=0x80 and MOSI-db11 represents the outdoor temperature
 
 data byte 9	| Variant | description
 ---- | ----- | -----
