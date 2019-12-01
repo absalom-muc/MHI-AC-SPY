@@ -1,6 +1,6 @@
 # SPI Bus
 ## Interface
-The AC is the SPI master and the ESP8266 is the SPI slave. MHI uses signals: SCK, MOSI, MISO.  A slave select signal is not supported.
+The AC is the SPI master and the ESP8266 is the SPI slave. MHI uses the signals SCK, MOSI, MISO.  A slave select signal is not supported.
 
 Name | Function |input/output
 ------------ | ------------- |--------------
@@ -127,7 +127,7 @@ The fan level is coded in MOSI data byte 1 bit [1:0] and in data byte 6 (bit 6).
 </table>
 
 ### Vanes
-The vanes upd/down level is coded in MOSI data byte 1 bit [5:4] and in data byte 0 (bit 6).
+The vanes up/down level is coded in MOSI data byte 1 bit [5:4] and in data byte 0 (bit 6).
 <table style="width: 273px; height: 68px;">
 <thead>
 <tr>
@@ -175,15 +175,15 @@ The vanes upd/down level is coded in MOSI data byte 1 bit [5:4] and in data byte
 </tr>
 </tbody>
 </table>
-Vanes status is not updated when using wireless IR remote control!
+Vanes status is not updated when using IR remote control!
 
 ### Room temperature
 The room temperature is coded in MOSI data byte 3, bit [7:0] according to the  formula T[°C]=(db3[7:0]-61)/4
 The resolution is 0.25°C. But for displaying the room temperature you shouldn't use this resolution to prevent displaying the toggling of the least significant bit.
 
 ### Temperature setpoint
-The temperature setpoint is coded in MOSI data byte 2, bit [6:0] according to the formula T[°C]=db2[6:1]/2
-The resolution of 0.5°C is supported by the wired remote control [RC-E5](https://www.mhi-mth.co.jp/en/products/pdf/pjz012a087b_german.pdf). The wireless IR remote control supports a resolution of 1°C.
+The temperature setpoint is coded in MOSI data byte 2, bit [6:0] according to the formula T[°C]=db2[6:0]/2
+The resolution of 0.5°C is supported by the wired remote control [RC-E5](https://www.mhi-mth.co.jp/en/products/pdf/pjz012a087b_german.pdf). The IR remote control supports a resolution of 1°C only.
 
 ## Checksum
 The checksum is calculated by the sum of the signature bytes plus the databytes. The low byte of the checksum is stored at byte position 18 and the low byte of the checksum is stored at byte position 19. Maximum value of the checksum is 0x0fe1. Therefore bit [7:4] of the checksum high byte is always 0.
