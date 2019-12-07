@@ -1,4 +1,5 @@
 # SPI Bus
+**This version is outdated, better check the version [here](https://github.com/absalom-muc/MHI-AC-Ctrl)**
 ## Interface
 The AC is the SPI master and the ESP8266 is the SPI slave. MHI uses the signals SCK, MOSI, MISO.  A slave select signal is not supported.
 
