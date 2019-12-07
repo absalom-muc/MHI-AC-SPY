@@ -1,4 +1,9 @@
 # MHI-AC-SPY
+
+**An improved version including writing to the air conditioner is [here](https://github.com/absalom-muc/MHI-AC-Ctrl)**
+
+The version here should be only used as a demonstration how to program the HW SPI of the ESP8266 for receiving data.
+
 The program reads data (e.g. room temperature, fan status etc.) from a Mitsubishi Heavy Industries (MHI)
 air conditioner (AC) via SPI and sends the data via MQTT. The AC is the SPI master and the ESP8266 is the SPI slave.
 So far only reading from the AC is supported. (but writing is planned for the future)
@@ -18,8 +23,7 @@ I assume that all indoor units of the type SRC xx ZS-S are supported. I use the 
 
 ## Hardware:
 The ESP8266 is powered from the AC via DC-DC (12V -> 5V) converter
-The ESP8266 SPI signals SCL (SPI clock) and MOSI (Master Out Slave In) signals are connected via a voltage divider with the AC.
-More details are described [here](/hardware.md)
+The ESP8266 SPI signals SCL (SPI clock) and MOSI (Master Out Slave In) signals are connected via a voltage divider with the AC. But after gaining some experiences I recommend to use a voltage level shifter instead of a voltage divider.
 
 ## Software:
 The program uses the [MQTT client library](https://github.com/knolleary/pubsubclient) from Nick O'Leary (knolleary). Thank you Nick - great work!
