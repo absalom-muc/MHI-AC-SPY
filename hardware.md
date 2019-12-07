@@ -1,4 +1,5 @@
 # Hardware
+**After gaining some experience I recommend to use a voltage level shifter instead of the resistor based voltage divider, please see [here](https://github.com/absalom-muc/MHI-AC-Ctrl)**
 
 ## Schematic
 ![schematic](/images/MHI-SPI_Schematic.png)
@@ -20,9 +21,3 @@ The upper colored cables are connected to an AC remote control. The JST connecto
 
 ## Signal Connection
 SCK is connected via a voltage divider with D5 (GPIO14) and MOSI is connected via a voltage divider with D7 (GPIO13) of ESP8266. 
-## Signal Level
-MHI provides SCK and MOSI with <span style="">V<sub>low</sub> = 0V and V<sub>high</sub> = 4V</span>
-The voltage divider limits the high voltage to 3.2V.
-
-
-
