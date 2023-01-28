@@ -1,6 +1,6 @@
 # MHI-AC-SPY
 
-**An improved version including writing to the air conditioner is [here](https://github.com/absalom-muc/MHI-AC-Ctrl)**
+**This repository is no longer maintained and is therefore archived. An improved version including writing to the air conditioner is [here](https://github.com/absalom-muc/MHI-AC-Ctrl)**
 
 The version here should be only used as a demonstration how to program the HW SPI of the ESP8266 for receiving data.
 
